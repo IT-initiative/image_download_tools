@@ -6,16 +6,16 @@ from io import BytesIO
 import re
 from urllib.parse import urljoin
 
-def download_images(url, code_prefix):
+def download_images(url, product_no):
     """
     Download images from Himalaya product page and save them with custom names.
     
     Args:
         url (str): The URL of the Himalaya product page
-        code_prefix (str): Four-character prefix code for filenames
+        product_no (str): Four-character product number for filenames
     """
-    if not re.match(r'^[A-Za-z0-9]{4}$', code_prefix):
-        raise ValueError("Code prefix must be exactly 4 alphanumeric characters")
+    if not re.match(r'^[A-Za-z0-9]{4}$', product_no):
+        raise ValueError("Product number must be exactly 4 alphanumeric characters")
 
     print(f"Processing URL: {url}")
     
@@ -73,12 +73,12 @@ def download_images(url, code_prefix):
                 print(f"Warning: Skipping div - no numeric code found in text: {code_text}")
                 continue
             
-            image_code = code_match.group(1)
+            color_code = code_match.group(1)
             
             # Get the image URL from the img tag
             img = div.find('img', class_='img-responsive')
             if not img or not img.get('src'):
-                print(f"Warning: Skipping code {image_code} - no image found")
+                print(f"Warning: Skipping code {color_code} - no image found")
                 continue
             
             # Handle relative URLs by joining with base URL
@@ -89,9 +89,9 @@ def download_images(url, code_prefix):
                 img_url = urljoin(url, img_url)
             
             # Generate filename
-            filename = f"HIM-{code_prefix}-{image_code}.png"
+            filename = f"HIM-{product_no}-{color_code}.png"
             
-            print(f"Downloading image for code {image_code} from {img_url}...")
+            print(f"Downloading image for code {color_code} from {img_url}...")
             
             # Download image with timeout
             img_response = requests.get(img_url, timeout=10)
@@ -137,9 +137,9 @@ def download_images(url, code_prefix):
 if __name__ == "__main__":
     # Example usage
     url = input("Enter the Himalaya product URL: ")
-    code_prefix = input("Enter the four-character prefix code: ")
+    product_no = input("Enter the four-character product number: ")
     
     try:
-        download_images(url, code_prefix)
+        download_images(url, product_no)
     except Exception as e:
         print(f"Error: {e}") 
